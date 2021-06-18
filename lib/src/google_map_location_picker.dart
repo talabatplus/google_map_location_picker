@@ -130,7 +130,7 @@ class LocationPickerState extends State<LocationPicker> {
                 SizedBox(
                   height: 24,
                   width: 24,
-                  child: CircularProgressIndicator(strokeWidth: 3),
+                  child: CircularProgressIndicator.adaptive(strokeWidth: 3),
                 ),
                 SizedBox(width: 24),
                 Expanded(
