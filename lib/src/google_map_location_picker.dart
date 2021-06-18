@@ -414,7 +414,6 @@ class LocationPickerState extends State<LocationPicker> {
             layersButtonEnabled: widget.layersButtonEnabled,
             automaticallyAnimateToCurrentLocation:
                 widget.automaticallyAnimateToCurrentLocation,
-            mapStylePath: widget.mapStylePath,
             appBarColor: widget.appBarColor,
             searchBarBoxDecoration: widget.searchBarBoxDecoration,
             hintText: widget.hintText,
