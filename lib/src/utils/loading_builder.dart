@@ -69,7 +69,7 @@ class _FutureLoadingBuilderState<T> extends State<FutureLoadingBuilder<T>> {
           case ConnectionState.active:
           case ConnectionState.waiting:
             return widget.loadingIndicator ??
-                Center(child: CircularProgressIndicator());
+                Center(child: CircularProgressIndicator.adaptive());
 
           case ConnectionState.done:
             if (snapshot.hasError) {
