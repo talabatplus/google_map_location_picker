@@ -48,7 +48,6 @@ class MapPicker extends StatefulWidget {
   final bool layersButtonEnabled;
   final bool automaticallyAnimateToCurrentLocation;
 
-
   final Color appBarColor;
   final BoxDecoration searchBarBoxDecoration;
   final String hintText;
@@ -150,7 +149,7 @@ class MapPickerState extends State<MapPicker> {
           if (_currentPosition == null &&
               widget.automaticallyAnimateToCurrentLocation &&
               widget.requiredGPS) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator.adaptive());
           }
 
           return buildMap();
@@ -230,7 +229,7 @@ class MapPickerState extends State<MapPicker> {
                       loadingIndicator: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          CircularProgressIndicator(),
+                          CircularProgressIndicator.adaptive(),
                         ],
                       ),
                       builder: (context, data) {
@@ -290,6 +289,7 @@ class MapPickerState extends State<MapPicker> {
   }
 
   Widget pin() {
+    final Brightness brightness = MediaQuery.of(context).platformBrightness;
     return IgnorePointer(
       child: Center(
         child: Column(
@@ -298,7 +298,7 @@ class MapPickerState extends State<MapPicker> {
             Icon(
               Icons.place,
               size: 56,
-              color: Colors.black,
+              color:Brightness.dark == brightness ? Colors.white : Colors.black,
             ),
             Container(
               decoration: ShapeDecoration(
@@ -363,7 +363,7 @@ class MapPickerState extends State<MapPicker> {
                 S.of(context)?.allow_access_to_the_location_services ??
                     'Allow access to the location services.'),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text(S.of(context)?.ok ?? 'Ok'),
                 onPressed: () {
                   Navigator.of(context, rootNavigator: true).pop();
