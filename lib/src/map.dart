@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:android_intent/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -28,7 +27,6 @@ class MapPicker extends StatefulWidget {
     this.myLocationButtonEnabled,
     this.layersButtonEnabled,
     this.automaticallyAnimateToCurrentLocation,
-    this.mapStylePath,
     this.appBarColor,
     this.searchBarBoxDecoration,
     this.hintText,
@@ -50,7 +48,6 @@ class MapPicker extends StatefulWidget {
   final bool layersButtonEnabled;
   final bool automaticallyAnimateToCurrentLocation;
 
-  final String mapStylePath;
 
   final Color appBarColor;
   final BoxDecoration searchBarBoxDecoration;
@@ -90,12 +87,21 @@ class MapPickerState extends State<MapPicker> {
     setState(() => _currentMapType = nextType);
   }
 
+  void _setStyle(GoogleMapController controller) async {
+    Brightness brightness = MediaQuery.of(context).platformBrightness;
+    if (brightness == Brightness.dark) {
+      String value =
+          await DefaultAssetBundle.of(context).loadString('assets/night.json');
+      controller.setMapStyle(value);
+    }
+  }
+
   // this also checks for location permission.
   Future<void> _initCurrentLocation() async {
     Position currentPosition;
     try {
-      currentPosition =
-          await getCurrentPosition(desiredAccuracy: widget.desiredAccuracy);
+      currentPosition = await Geolocator.getCurrentPosition(
+          desiredAccuracy: widget.desiredAccuracy);
       d("position = $currentPosition");
 
       setState(() => _currentPosition = currentPosition);
@@ -126,12 +132,6 @@ class MapPickerState extends State<MapPicker> {
     super.initState();
     if (widget.automaticallyAnimateToCurrentLocation && !widget.requiredGPS)
       _initCurrentLocation();
-
-    if (widget.mapStylePath != null) {
-      rootBundle.loadString(widget.mapStylePath).then((string) {
-        _mapStyle = string;
-      });
-    }
   }
 
   @override
@@ -172,9 +172,7 @@ class MapPickerState extends State<MapPicker> {
             onMapCreated: (GoogleMapController controller) {
               mapController.complete(controller);
               //Implementation of mapStyle
-              if (widget.mapStylePath != null) {
-                controller.setMapStyle(_mapStyle);
-              }
+              _setStyle(controller);
 
               _lastMapPosition = widget.initialCenter;
               LocationProvider.of(context, listen: false)
@@ -297,7 +295,11 @@ class MapPickerState extends State<MapPicker> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Icon(Icons.place, size: 56),
+            Icon(
+              Icons.place,
+              size: 56,
+              color: Colors.black,
+            ),
             Container(
               decoration: ShapeDecoration(
                 shadows: [
@@ -324,7 +326,7 @@ class MapPickerState extends State<MapPicker> {
   var dialogOpen;
 
   Future _checkGeolocationPermission() async {
-    final geolocationStatus = await checkPermission();
+    final geolocationStatus = await Geolocator.checkPermission();
     d("geolocationStatus = $geolocationStatus");
 
     if (geolocationStatus == LocationPermission.denied && dialogOpen == null) {
@@ -395,11 +397,11 @@ class MapPickerState extends State<MapPicker> {
                     ?.allow_access_to_the_location_services_from_settings ??
                 'Allow access to the location services for this App using the device settings.'),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text(S.of(context)?.ok ?? 'Ok'),
-                onPressed: () {
+                onPressed: () async {
                   Navigator.of(context, rootNavigator: true).pop();
-                  openAppSettings();
+                  await Geolocator.openAppSettings();
                   dialogOpen = null;
                 },
               ),
@@ -408,40 +410,6 @@ class MapPickerState extends State<MapPicker> {
         );
       },
     );
-  }
-
-  // TODO: 9/12/2020 this is no longer needed, remove in the next release
-  Future _checkGps() async {
-    if (!(await isLocationServiceEnabled())) {
-      if (Theme.of(context).platform == TargetPlatform.android) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(S.of(context)?.cant_get_current_location ??
-                  "Can't get current location"),
-              content: Text(S
-                      .of(context)
-                      ?.please_make_sure_you_enable_gps_and_try_again ??
-                  'Please make sure you enable GPS and try again'),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text('Ok'),
-                  onPressed: () {
-                    final AndroidIntent intent = AndroidIntent(
-                        action: 'android.settings.LOCATION_SOURCE_SETTINGS');
-
-                    intent.launch();
-                    Navigator.of(context, rootNavigator: true).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      }
-    }
   }
 }
 
