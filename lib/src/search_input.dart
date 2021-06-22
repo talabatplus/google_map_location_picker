@@ -84,9 +84,7 @@ class SearchInputState extends State<SearchInput> {
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
-                fillColor: Theme.of(context).brightness == Brightness.dark
-                ? Colors.black54
-                : Colors.white,
+                fillColor: Colors.transparent,
                 filled: true,
                 hintStyle: Theme.of(context).textTheme.bodyText1,
 
