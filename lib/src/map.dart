@@ -69,8 +69,6 @@ class MapPickerState extends State<MapPicker> {
 
   MapType _currentMapType = MapType.normal;
 
-  String _mapStyle;
-
   LatLng _lastMapPosition;
 
   Position _currentPosition;
